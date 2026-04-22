@@ -1,6 +1,6 @@
 /**
  * SkillBarter v3 — Fully Functional
- * React frontend connected to Spring Boot API backend
+ * React frontend connected directly to Supabase
  */
 
 import { useState, useEffect, useRef, useCallback } from "react";
@@ -250,7 +250,7 @@ const Field = ({label,children,mb=16}) => (
 const DemoBanner = () => DEMO_MODE ? (
   <div style={{background:"linear-gradient(135deg,rgba(245,200,66,0.1),rgba(249,115,22,0.08))",border:"1px solid rgba(245,200,66,0.25)",borderRadius:10,padding:"10px 16px",marginBottom:20,fontSize:13,color:"var(--yellow)",display:"flex",alignItems:"center",gap:10}}>
     <span style={{fontWeight:800}}>⚡ Demo Mode</span>
-    <span style={{color:"var(--text2)"}}>Using backend fetch for profiles and local/demo data for the remaining modules.</span>
+    <span style={{color:"var(--text2)"}}>Using Supabase for live data and local/demo data for the remaining modules.</span>
   </div>
 ) : null;
 
@@ -524,7 +524,7 @@ function AuthPage({onAuth,signIn,signUp}) {
           email:form.email||MOCK_ME.email,
           full_name:form.name||MOCK_ME.full_name
         });
-        setErr("Backend is unreachable right now. Loaded demo mode so you can keep using the app locally.");
+        setErr("Supabase is unreachable right now. Loaded demo mode so you can keep using the app locally.");
         return;
       }
       setErr(e.message);
@@ -785,7 +785,11 @@ function People({user,setPage,setChatUser,toast}) {
   const filtered=users.filter(u=>{
     if(!search) return true;
     const q=search.toLowerCase();
-    return u.full_name.toLowerCase().includes(q)||(u.skills_offered||[]).some(s=>s.toLowerCase().includes(q))||(u.skills_wanted||[]).some(s=>s.toLowerCase().includes(q))||(u.location||"").toLowerCase().includes(q);
+    return (u.full_name||"").toLowerCase().includes(q)
+      || (u.email||"").toLowerCase().includes(q)
+      || (u.skills_offered||[]).some(s=>s.toLowerCase().includes(q))
+      || (u.skills_wanted||[]).some(s=>s.toLowerCase().includes(q))
+      || (u.location||"").toLowerCase().includes(q);
   });
 
   const sendRequest=async()=>{
